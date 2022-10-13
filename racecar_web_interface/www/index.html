@@ -12,9 +12,7 @@ Client-side:
 * https://getbootstrap.com/docs/4.0/getting-started/introduction/
 * https://getbootstrap.com/docs/4.0/layout/grid/
 -->
-<style>
 
-</style>
 <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
@@ -32,10 +30,7 @@ Client-side:
   <!-- Menu BEGIN-->
   <div class="collapse" id="navbarToggleExternalContent">
     <div class="bg-dark p-4">
-      <h6 class="text-white h4">Configuration</h6>
-      <p style="color:white;"> ROS master IP: </p>
-      <input type="text" id="fname" name="fname"> <br>
-      <button onclick="connectROS()">Connectez!!! :)</button>
+      <h6 class="text-white h4">Config</h6>
     </div>
   </div>
 
@@ -45,45 +40,11 @@ Client-side:
         <span class="navbar-toggler-icon"></span>
       </button>
     </div>
-    <h1 style="color:white;">Racecar 06</h1>
   </nav>
-    
-    
   <!-- Menu END-->
 
   <!-- Main layout BEGIN-->
- <style>
-      .divSection {
-        margin:20px;
-      }
-      button {
-        background-color : black;
-        color : white;
-      }
-    </style>
-
-    <div class="row">
-      <div class="col-sm">
-        <div class="row-sm divSection">
-          <h1>Statut</h1>
-          <textarea id="log" style="background-color:lightgrey;" rows="4" cols="30" readonly>
-          </textarea>
-          <br>
-          <button type="button"onclick="effacer()">Effacer</button>
-        </div>
-        <div class="row-sm divSection">
-          <h1>Contrôle</h1>
-          <button type="button" onclick="avancer()" id="bt_Avancer" disabled>Avancer</button>
-          <button type="button" onclick="arreter()" id="bt_Arreter" disabled>Arrêter</button>
-          <p id="demo"></p>
-          <p id="demo2"></p>
-        </div>
-      </div>
-      <div class="col-sm divSection">
-        <h1>Caméra</h1>
-        <img id="cam" width = 100%> </img>
-      </div>
-    </div>
+  <div class="container-fluid">
 
   </div>
   <!-- Main layout END-->
@@ -103,26 +64,20 @@ Client-side:
 
       //Some initializations after the page has been shown
       $(document).ready(function(){
-        document.getElementById("log").value = ""
+        document.getElementById("log").value = 'Default text\n'
       });
 
       // Define some functions
       function connectROS() {
         // This function connects to the rosbridge server
-        var ip = document.getElementById("fname").value;
+
 	    rbServer = new ROSLIB.Ros({
           // Assuming ros server IP is 10.42.0.1
-	      url : "ws://" + ip + ":9090" //'ws://10.42.0.1:9090'
+	      url : 'ws://10.42.0.1:9090'
 	    });
 
         rbServer.on('connection', function(){
             console.log('Connected to websocket server.');
-            let text = document.getElementById('log');
-            text.value = text.value+"Connexion Établie\n";
-            
-            document.getElementById("bt_Avancer").disabled = false;
-            document.getElementById("bt_Arreter").disabled = false;
-            document.getElementById("cam").src = "http://" + ip + ":8080/stream?topic=/racecar/raspicam_node/image&type=ros_compressed";
 
             // These lines create a topic object as defined by roslibjs
             cmdVelTopic = new ROSLIB.Topic({
@@ -134,8 +89,6 @@ Client-side:
 
         rbServer.on('error', function(error) {
           console.log('Error connecting to websocket server: ', error);
-          let text = document.getElementById('log');
-          text.value = text.value+"Erreur Connexion\n";
 	    });
 
 	    rbServer.on('close', function() {
@@ -166,21 +119,6 @@ Client-side:
            }
       }, 200);
 
-      
-      function avancer(){
-        let text = document.getElementById('log');
-        text.value = text.value+"Avancer\n";
-        twist.linear.x = 5.0;
-    }
-      function arreter(){
-        let text = document.getElementById('log');
-        text.value = text.value+"Arreter\n";
-        twist.linear.x = 0.0;
-    }
-      function effacer(){
-        let text = document.getElementById('log');
-        text.value = "";
-    }
   </script>
 </body>
 </html>
