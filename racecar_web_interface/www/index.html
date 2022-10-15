@@ -22,10 +22,10 @@ Client-side:
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/dashboard.css">
 
-    <title>Laboratoire S5-GIF250</title>
+    <title>Racecar GUI</title>
 </head>
 
-<body>
+<body style="background: lightblue;">
 
   <style>
     button{
@@ -40,23 +40,27 @@ Client-side:
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      
-      width: 60%;
-      border: 3px solid #73AD21;
+      text-align: center;
     }
     
   </style>
+  
+  <nav class="navbar navbar-dark bg-dark" style="border: 3px solid #73AD21; color:white;">
+     <div class="col-sm-9" style="border: 3px solid #73AD21;">
+       <h1>Racecar</h1>
+     </div>
+  </nav>
     
   <!-- Main layout BEGIN-->
   <div class="container-fluid">
     <div class=center>
-        <h1 style="text-align: center;">Connexion</h1>
+        <h1 style="">Connexion</h1>
         <form action="controller.html" method="GET">
-            <label for="ipAd">IP address:</label><br>
+            <label for="ipAd">Adresse IP:</label><br>
             <input type="text" id="ipAd" name="ipAd"><br>
-            <label for="user">Username:</label><br>
+            <label for="user">Nom:</label><br>
             <input type="text" id="user" name="user"><br><br>
-            <input type="submit" value="Submit">
+            <button script="notConnected()" type="submit">Soumettre</button>
         </form> 
     </div>
   </div>
