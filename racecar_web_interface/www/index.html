@@ -12,9 +12,7 @@ Client-side:
 * https://getbootstrap.com/docs/4.0/getting-started/introduction/
 * https://getbootstrap.com/docs/4.0/layout/grid/
 -->
-<style>
 
-</style>
 <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
@@ -28,63 +26,69 @@ Client-side:
 </head>
 
 <body>
+
+  <style>
+    button{
+      background-color: rgb(49, 47, 47);
+      color: white;
+      font-size: large;
+    }
+  </style>
     
   <!-- Menu BEGIN-->
   <div class="collapse" id="navbarToggleExternalContent">
     <div class="bg-dark p-4">
-      <h6 class="text-white h4">Configuration</h6>
-      <p style="color:white;"> ROS master IP: </p>
-      <input type="text" id="fname" name="fname"> <br>
-      <button onclick="connectROS()">Connectez!!! :)</button>
+      <h2 class="text-white">Configuration</h2>
+      <form class="text-white h4">
+        <label for="ipAd">ROS master IP:</label><br>
+        <input type="text" id="ipAd" name="ipAd">
+        <button type="button" onclick="connectROS()">Connect</button>
+      </form> 
+      </form> 
     </div>
   </div>
 
   <nav class="navbar navbar-dark bg-dark">
-    <div>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+    <div class="row">
+
+      <div class="col-sm">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      </div>
+
+      <div class="col-sm">
+        <h1 style="color:white">Racecar</h1>
+      </div>
+
     </div>
-    <h1 style="color:white;">Racecar 06</h1>
   </nav>
-    
-    
   <!-- Menu END-->
 
   <!-- Main layout BEGIN-->
- <style>
-      .divSection {
-        margin:20px;
-      }
-      button {
-        background-color : black;
-        color : white;
-      }
-    </style>
-
+  <div class="container-fluid">
     <div class="row">
-      <div class="col-sm">
-        <div class="row-sm divSection">
+
+      <div class="col-sm-6">
+        <div class="row-sm">
           <h1>Statut</h1>
-          <textarea id="log" style="background-color:lightgrey;" rows="4" cols="30" readonly>
-          </textarea>
+          <textarea id=log rows="10" cols="60" style="background:rgb(182, 178, 178)"></textarea>
           <br>
-          <button type="button"onclick="effacer()">Effacer</button>
+          <button type="button" onclick="effacer()">Effacer</button>
         </div>
-        <div class="row-sm divSection">
+
+        <div class="row-sm">
           <h1>Contrôle</h1>
-          <button type="button" onclick="avancer()" id="bt_Avancer" disabled>Avancer</button>
-          <button type="button" onclick="arreter()" id="bt_Arreter" disabled>Arrêter</button>
-          <p id="demo"></p>
-          <p id="demo2"></p>
+          <button id="butAvancer" type="button" disabled onclick="avancer()">Avancer</button>
+          <button id="butArreter" type="button" disabled onclick="arreter()">Arrêter</button>
         </div>
       </div>
-      <div class="col-sm divSection">
+
+      <div class="col-sm-6">
         <h1>Caméra</h1>
-        <img id="cam" width = 100%> </img>
+        <img id="piCam" width="100%"></img>
       </div>
     </div>
-
   </div>
   <!-- Main layout END-->
   
@@ -103,59 +107,55 @@ Client-side:
 
       //Some initializations after the page has been shown
       $(document).ready(function(){
-        document.getElementById("log").value = ""
+        document.getElementById("log").value = ''
+        notConnected();
       });
 
       // Define some functions
       function connectROS() {
         // This function connects to the rosbridge server
-        var ip = document.getElementById("fname").value;
-	    rbServer = new ROSLIB.Ros({
-          // Assuming ros server IP is 10.42.0.1
-	      url : "ws://" + ip + ":9090" //'ws://10.42.0.1:9090'
-	    });
+        rbServer = new ROSLIB.Ros({url : 'ws://' + document.getElementById("ipAd").value + ":9090"});
 
         rbServer.on('connection', function(){
-            console.log('Connected to websocket server.');
-            let text = document.getElementById('log');
-            text.value = text.value+"Connexion Établie\n";
-            
-            document.getElementById("bt_Avancer").disabled = false;
-            document.getElementById("bt_Arreter").disabled = false;
-            document.getElementById("cam").src = "http://" + ip + ":8080/stream?topic=/racecar/raspicam_node/image&type=ros_compressed";
+          console.log('Connected to websocket server.');
+          log('Connected to websocket server.');
+          connected();
 
-            // These lines create a topic object as defined by roslibjs
-            cmdVelTopic = new ROSLIB.Topic({
-                ros : rbServer,
-                name : '/racecar/cmd_vel_abtr_2',
-                messageType : 'geometry_msgs/Twist'
-            });
-	    });
+          // These lines create a topic object as defined by roslibjs
+          cmdVelTopic = new ROSLIB.Topic({
+            ros : rbServer,
+            name : '/racecar/cmd_vel_abtr_2',
+            messageType : 'geometry_msgs/Twist'
+          });
+
+        });
 
         rbServer.on('error', function(error) {
           console.log('Error connecting to websocket server: ', error);
-          let text = document.getElementById('log');
-          text.value = text.value+"Erreur Connexion\n";
-	    });
+          log('Error connecting to websocket server: ', error);
+          notConnected();
+        });
 
-	    rbServer.on('close', function() {
+        rbServer.on('close', function() {
           console.log('Connection to websocket server closed.');
-	    });
+          log('Connection to websocket server closed.');
+          notConnected();
+        });
       }
 
       // These lines create a message that conforms to the structure of the Twist defined in our ROS installation
       // It initalizes all properties to zero. They will be set to appropriate values before we publish this message.
       var twist = new ROSLIB.Message({
-           linear : {
-                x : 0.0,
-                y : 0.0,
-                z : 0.0
-            },
-            angular : {
-                x : 0.0,
-                y : 0.0,
-                z : 0.0
-            }
+          linear : {
+              x : 0.0,
+              y : 0.0,
+              z : 0.0
+          },
+          angular : {
+              x : 0.0,
+              y : 0.0,
+              z : 0.0
+          }
       });
 
       //Publishing loop cmd_vel at 5 Hz
@@ -166,21 +166,49 @@ Client-side:
            }
       }, 200);
 
-      
-      function avancer(){
-        let text = document.getElementById('log');
-        text.value = text.value+"Avancer\n";
-        twist.linear.x = 5.0;
-    }
-      function arreter(){
-        let text = document.getElementById('log');
-        text.value = text.value+"Arreter\n";
-        twist.linear.x = 0.0;
-    }
-      function effacer(){
-        let text = document.getElementById('log');
-        text.value = "";
-    }
+      function connected()
+      {
+        document.getElementById("butArreter").disabled = false;
+        document.getElementById("butAvancer").disabled = false;
+        //Pour raspi :  ":8080/stream?topic=/racecar/raspicam_node/image&type=ros_compressed"
+        //Pour gazebo : ":8080/stream?topic=/racecar/raspicam_node/image_raw"
+        document.getElementById("piCam").src = "http://" + document.getElementById("ipAd").value + ":8080/stream?topic=/racecar/raspicam_node/image&type=ros_compressed";
+        log(document.getElementById("piCam").src)
+      }
+
+      function notConnected()
+      {
+        document.getElementById("butArreter").disabled = true;
+        document.getElementById("butAvancer").disabled = true;
+        document.getElementById("piCam").src = '';
+      }
+
+      function effacer()
+      {
+        document.getElementById('log').value='';
+      }
+
+      function log(text)
+      {
+        var consoleLog = document.getElementById('log')
+        consoleLog.value = consoleLog.value + text + "\n";
+      }
+
+      function avancer()
+      {
+        log("Avancer");
+        twist.linear.x = 1;
+      }
+
+      function arreter()
+      {
+        log("Arrêter !");
+        twist.linear.x = 0;
+      }
+
+
+
   </script>
 </body>
 </html>
+
