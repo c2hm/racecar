@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+<!-- 
+==References==
+Server-side:
+* http://docs.ros.org/indigo/api/roswww/html/
+* http://wiki.ros.org/web_video_server
+* http://wiki.ros.org/rosbridge_suite/Tutorials/RunningRosbridge
+
+Client-side:
+* http://wiki.ros.org/roslibjs/Tutorials/BasicRosFunctionality
+* https://getbootstrap.com/docs/4.0/getting-started/introduction/
+* https://getbootstrap.com/docs/4.0/layout/grid/
+-->
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+
+    <title>Laboratoire S5-GIF250</title>
+</head>
+
+<body>
+
+  <style>
+    button{
+      background-color: rgb(49, 47, 47);
+      color: white;
+      font-size: large;
+    }
+     
+    .center {
+      margin: auto;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      
+      width: 60%;
+      border: 3px solid #73AD21;
+    }
+    
+  </style>
+    
+  <!-- Main layout BEGIN-->
+  <div class="container-fluid">
+    <div class=center>
+        <h1 style="text-align: center;">Connexion</h1>
+        <form class="h4" action="file:///home/racecar/catkin_ws/src/racecar/racecar_web_interface/www/controller.html" method="GET">
+            <label for="ipAd">IP address:</label><br>
+            <input type="text" id="ipAd" name="ipAd" value="0"><br>
+            <label for="user">Username:</label><br>
+            <input type="text" id="user" name="user"><br><br>
+            <input type="submit" value="Submit">
+        </form> 
+    </div>
+  </div>
+  <!-- Main layout END-->
+  
+  <!-- JavaScript, import frameworks -->
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script src="js/jquery-3.3.1.slim.min.js"></script>
+  <script src="js/popper.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+
+  <!-- Custom scripts -->
+  <script>
+      // Define some global variables
+
+      //Some initializations after the page has been shown
+      $(document).ready(function(){
+      });
+
+  </script>
+</body>
+</html>
+

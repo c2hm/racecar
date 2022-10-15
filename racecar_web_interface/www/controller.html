@@ -35,32 +35,11 @@ Client-side:
     }
   </style>
     
-  <!-- Menu BEGIN-->
-  <div class="collapse" id="navbarToggleExternalContent">
-    <div class="bg-dark p-4">
-      <h2 class="text-white">Configuration</h2>
-      <form class="text-white h4">
-        <label for="ipAd">ROS master IP:</label><br>
-        <input type="text" id="ipAd" name="ipAd">
-        <button type="button" onclick="connectROS()">Connect</button>
-      </form> 
-      </form> 
-    </div>
-  </div>
-
   <nav class="navbar navbar-dark bg-dark">
     <div class="row">
-
-      <div class="col-sm">
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-      </div>
-
       <div class="col-sm">
         <h1 style="color:white">Racecar</h1>
       </div>
-
     </div>
   </nav>
   <!-- Menu END-->
@@ -104,17 +83,19 @@ Client-side:
       // Define some global variables
       var rbServer = null;
       var cmdVelTopic = null;
+      var ip = null;
+      var user = null;
 
       //Some initializations after the page has been shown
       $(document).ready(function(){
         document.getElementById("log").value = ''
-        notConnected();
+        tryConnect();
       });
 
       // Define some functions
       function connectROS() {
         // This function connects to the rosbridge server
-        rbServer = new ROSLIB.Ros({url : 'ws://' + document.getElementById("ipAd").value + ":9090"});
+        rbServer = new ROSLIB.Ros({url : 'ws://' + ip + ":9090"});
 
         rbServer.on('connection', function(){
           console.log('Connected to websocket server.');
@@ -172,8 +153,7 @@ Client-side:
         document.getElementById("butAvancer").disabled = false;
         //Pour raspi :  ":8080/stream?topic=/racecar/raspicam_node/image&type=ros_compressed"
         //Pour gazebo : ":8080/stream?topic=/racecar/raspicam_node/image_raw"
-        document.getElementById("piCam").src = "http://" + document.getElementById("ipAd").value + ":8080/stream?topic=/racecar/raspicam_node/image&type=ros_compressed";
-        log(document.getElementById("piCam").src)
+        document.getElementById("piCam").src = "http://" + ip + ":8080/stream?topic=/racecar/raspicam_node/image&type=ros_compressed";
       }
 
       function notConnected()
@@ -204,6 +184,18 @@ Client-side:
       {
         log("Arrêter !");
         twist.linear.x = 0;
+      }
+      
+      function tryConnect()
+      {
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+
+        ip = urlParams.get("ipAd");
+        user = urlParams.get("user");
+        log("IP address : " + ip);
+        log("Username : " + user);
+        connectROS();
       }
 
 
