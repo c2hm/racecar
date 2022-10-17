@@ -37,17 +37,17 @@ Client-side:
     }
   </style>
     
-  <nav class="navbar navbar-dark bg-dark" style="border: 3px solid #73AD21; color:white;">
-      <div class="col-sm-9" style="border: 3px solid #73AD21;">
+  <nav class="navbar navbar-dark bg-dark" style=color:white;">
+      <div class="col-sm-9">
         <h1>Racecar</h1>
       </div>
-      <div class="col-sm-2" style="border: 3px solid #73AD21;">
+      <div class="col-sm-2">
         <div class=row-sm>
             <h8 id=ipDisplay>IP: </h8><br>
             <h8 id=userDisplay>Nom: </h8>
         </div>
       </div>
-      <div class="col-sm-1" style="border: 3px solid #73AD21;">
+      <div class="col-sm-1">
         <form action="index.html">
             <button script="notConnected()" type="submit">Exit</button>
         </form>
@@ -62,7 +62,7 @@ Client-side:
       <div class="col-sm-6">
         <div class="row-sm">
           <h1>Statut</h1>
-          <textarea id=log rows="10" cols="60" style="background:rgb(182, 178, 178)"></textarea>
+          <textarea id=log rows="10" style="width: 100%; max-width: 100%; background:rgb(182, 178, 178)"></textarea>
           <br>
           <button type="button" onclick="effacer()">Effacer</button>
         </div>
@@ -82,7 +82,7 @@ Client-side:
                     <button id="butGauche" type="button" disabled onclick="gauche()">Gauche</button>
                 </div>
                 <div class="col">
-                    <button id="butArreter" type="button" disabled onclick="arreter()">Stop</button>
+                    <button id="butArreter" type="button" disabled onclick="arreter()" style="background-color:red; color:black;">Stop</button>
                 </div>
                 <div class="col">
                     <button id="butDroite" type="button" disabled onclick="droite()">Droite</button>
@@ -103,13 +103,8 @@ Client-side:
       <div class="col-sm-6">
         <div class="row">
             <h1>Caméra</h1>
-            <img id="piCam" width="100%"></img>
+            <img id="piCam" width="100%" style="margin:2%;"></img>
         </div>
-        <div class="row">
-            <h1>Infos</h1>
-            
-        </div>
-
       </div>
     </div>
   </div>
