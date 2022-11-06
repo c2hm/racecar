@@ -119,6 +119,10 @@ class WallEstimator(object):
             
         self.theta_estimation = 0.5 * ( self.theta_left + self.theta_right )
         self.y_estimation     = 0.5 * ( self.y_left + self.y_right )
+        #rospy.logwarn("pos est y %f",self.y_estimation)
+        #rospy.logwarn("left y %f",self.y_left)
+        #rospy.logwarn("right y %f",self.y_right)
+        #rospy.logwarn("theta y %f",self.theta_estimation)
         
         self.pub_estimate()
     

@@ -360,22 +360,14 @@ void ctl(){
   else if (ctl_mode == 2 ){
     // Low-level Velocity control
     // Commands received in [m/sec] setpoints
-    float vel_ref, vel_error;
 
-    //Error
-    vel_ref = dri_ref; 
+    float vel_ref = dri_cmd;
 
-    //Kp error
     vel_error = vel_ref - vel_fil;
 
-    //Ki error
-    vel_error_int = vel_error_int + vel_error * time_loop_dt / 1000; 
-    // Anti wind-up
-    if ( vel_error_int > vel_ei_sat ){
-      vel_error_int = vel_ei_sat;
-    }
-    //Corrected cmd
-    dri_cmd = vel_kp * vel_error + vel_ki*vel_error_int;
+    float k = 9.74; //changer
+
+    dri_cmd = k*vel_error;
 
     //Cmd to pwm
     dri_pwm = cmd2pwm( dri_cmd );
@@ -384,23 +376,15 @@ void ctl(){
   else if (ctl_mode == 3){
     // Low-level Position control
     // Commands received in [m] setpoints
-    float pos_ref, pos_error, pos_error_ddt;
+    float pos_ref, pos_error
     pos_ref = dri_ref; 
 
-    //Kp error
     pos_error = pos_ref - pos_now;
 
-    //Ki error
-    pos_error_int = pos_error_int + pos_error * time_loop_dt / 1000; 
-    // Anti wind-up
-    if ( pos_error_int > pos_ei_sat ){
-      pos_error_int = pos_ei_sat;
-    }
-    //Kd error
-    pos_error_ddt = (pos_error - pos_error_old) / time_loop_dt * 1000;
-    pos_error_old = pos_error;
-    //Corrected cmd
-    dri_cmd = pos_kp * pos_error + pos_ki * pos_error_int + pos_kd * pos_error_ddt;
+    float k = 1; //changer
+
+    dri_cmd = k*pos_error;
+    
     //Cmd to pwm
     dri_pwm = cmd2pwm( dri_cmd );
   }
@@ -437,7 +421,6 @@ void ctl(){
 
 // ROS suscriber
 ros::Subscriber<geometry_msgs::Twist> cmdSubscriber("prop_cmd", &cmdCallback) ;
-
 
 ///////////////////////////////////////////////////////////////////
 // Arduino Initialization

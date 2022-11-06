@@ -28,9 +28,9 @@ class slash_controller(object):
         # Controller        
         self.steering_offset = 0.0 # To adjust according to the vehicle
         
-        self.K_autopilot =  None # TODO: DESIGN LQR
+        self.K_autopilot =  [[0,0,9.7403], [0.3162,.5613,0]]
     
-        self.K_parking   =  None # TODO: DESIGN PLACEMENT DE POLES
+        self.K_parking   =  [[1,0,0], [0,10.62,34]]
         
         # Memory
         
@@ -53,6 +53,7 @@ class slash_controller(object):
         # Filters 
         self.laser_y_old    = 0
         self.laser_dy_fill  = 0
+
         
     #######################################
     def timed_controller(self, timer):
@@ -91,50 +92,38 @@ class slash_controller(object):
             
             # APP4 (closed-loop steering) controllers bellow
             elif ( self.high_level_mode == 3 or self.high_level_mode == 5  ):
-                # Closed-loop velocity and steering
-            
-                #########################################################
-                # TODO: COMPLETEZ LE CONTROLLER
-                
-                # Auto-pilot # 1 
-                
-                # x = [ ?,? ,.... ]
-                # r = [ ?,? ,.... ]
-                # u = [ servo_cmd , prop_cmd ]
+                # Closed-loop velocity and steering       
 
-                x = None
-                r = None
+                vel_ref = self.propulsion_ref
+                
+                x = np.array([self.laser_y, self.laser_theta, self.velocity])
+                r = np.array([0,0,vel_ref])
+                rospy.logwarn("pos y %f",self.laser_y)
+                rospy.logwarn("pos theta %f",self.laser_theta)
                 
                 u = self.controller1( x , r )
 
-                self.steering_cmd   = u[1] + self.steering_offset
-                self.propulsion_cmd = u[0]     
-                self.arduino_mode   = 0    # Mode ??? on arduino
-                # TODO: COMPLETEZ LE CONTROLLER
-                #########################################################
+                self.steering_cmd   = -1*(u[1] + self.steering_offset)
+                # self.propulsion_cmd = u[0] 
+                self.propulsion_cmd = vel_ref   
+                self.arduino_mode   = 2 
                 
             elif ( self.high_level_mode == 4 ):
-                # Closed-loop position and steering
-            
-                #########################################################
-                # TODO: COMPLETEZ LE CONTROLLER
-                
-                # Auto-pilot # 1 
-                
-                # x = [ ?,? ,.... ]
-                # r = [ ?,? ,.... ]
-                # u = [ servo_cmd , prop_cmd ]
-                
-                x = None
-                r = None
+                # Closed-loop position and steering    
+
+                pos_ref = self.propulsion_ref
+
+                x = np.array([self.laser_y, self.laser_theta, self.position])
+                r = np.array([0,0,pos_ref])
+                rospy.logwarn("pos y %f",self.laser_y)
+                rospy.logwarn("pos theta %f",self.laser_theta)
                 
                 u = self.controller2( x , r )
 
-                self.steering_cmd   = u[1] + self.steering_offset
-                self.propulsion_cmd = u[0]     
-                self.arduino_mode   = 0 # Mode ??? on arduino
-                # TODO: COMPLETEZ LE CONTROLLER
-                #########################################################
+                self.steering_cmd   = -1*(u[1] + self.steering_offset)
+                # self.propulsion_cmd = u[0]
+                self.propulsion_cmd = pos_ref      
+                self.arduino_mode   = 3
                 
             elif ( self.high_level_mode == 6 ):
                 # Reset encoders
@@ -160,26 +149,25 @@ class slash_controller(object):
         
         self.send_arduino()
 
-        
     #######################################
-    def controller1(self, y , r):
+    def controller1(self, x , r):
 
         # Control Law TODO
 
-        u = np.array([ 0 , 0 ]) # placeholder
+        #u = np.array([ 0 , 0 ]) # placeholder
         
-        #u = np.dot( self.K_autopilot , (r - x) )
+        u = np.dot( self.K_autopilot , (r - x) )
         
         return u
 
     #######################################
-    def controller2(self, y , r ):
+    def controller2(self, x , r ):
 
         # Control Law TODO
 
-        u = np.array([ 0 , 0 ]) # placeholder
+        #u = np.array([ 0 , 0 ]) # placeholder
         
-        #u = np.dot( self.K_parking , (r - x) )
+        u = np.dot( self.K_parking , (r - x) )
         
         return u
 
@@ -196,6 +184,8 @@ class slash_controller(object):
 
         self.laser_y     = msg.linear.y  
         self.laser_theta = msg.angular.z
+        
+        
         
         
     ####################################### 
