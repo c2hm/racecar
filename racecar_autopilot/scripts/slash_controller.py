@@ -28,9 +28,9 @@ class slash_controller(object):
         # Controller        
         self.steering_offset = 0.0 # To adjust according to the vehicle
         
-        self.K_autopilot =  [[0,0,9.7403], [0.3162,.5613,0]]
+        self.K_autopilot =  [[0,0,9.7769], [0.3162,.5613,0]]
     
-        self.K_parking   =  [[1,0,0], [0,10.62,34]]
+        self.K_parking   =  [[0,0,1], [1.7,1.36,0]]
         
         # Memory
         
@@ -96,14 +96,12 @@ class slash_controller(object):
 
                 vel_ref = self.propulsion_ref
                 
-                x = np.array([self.laser_y, self.laser_theta, self.velocity])
+                x = np.array([self.laser_y, -self.laser_theta, self.velocity])
                 r = np.array([0,0,vel_ref])
-                rospy.logwarn("pos y %f",self.laser_y)
-                rospy.logwarn("pos theta %f",self.laser_theta)
                 
                 u = self.controller1( x , r )
 
-                self.steering_cmd   = -1*(u[1] + self.steering_offset)
+                self.steering_cmd   = (u[1] + self.steering_offset)
                 # self.propulsion_cmd = u[0] 
                 self.propulsion_cmd = vel_ref   
                 self.arduino_mode   = 2 
@@ -113,17 +111,16 @@ class slash_controller(object):
 
                 pos_ref = self.propulsion_ref
 
-                x = np.array([self.laser_y, self.laser_theta, self.position])
+                x = np.array([self.laser_y, -self.laser_theta, self.position])
                 r = np.array([0,0,pos_ref])
-                rospy.logwarn("pos y %f",self.laser_y)
-                rospy.logwarn("pos theta %f",self.laser_theta)
                 
                 u = self.controller2( x , r )
 
-                self.steering_cmd   = -1*(u[1] + self.steering_offset)
-                # self.propulsion_cmd = u[0]
-                self.propulsion_cmd = pos_ref      
+                self.steering_cmd   = (u[1] + self.steering_offset)
+                self.propulsion_cmd = u[0]    
                 self.arduino_mode   = 3
+                
+                rospy.logwarn("pos %f",self.position)
                 
             elif ( self.high_level_mode == 6 ):
                 # Reset encoders

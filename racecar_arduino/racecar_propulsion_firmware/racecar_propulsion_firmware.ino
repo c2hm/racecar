@@ -1,4 +1,4 @@
-/=========================HEADER=============================================================
+//=========================HEADER=============================================================
 // Firmware for the Arduino managing the propulsion of the slash platform (UdeS Racecar)
 //============================================================================================
 
@@ -119,6 +119,10 @@ float vel_old   = 0;
 
 float vel_error_int = 0 ;
 float pos_error_int = 0;
+
+float vel_fil = 0;
+float fc = 15/316.23;
+float alpha = 2*3.1416*time_period_low/(1/fc + 2*3.1416*time_period_low);
 
 // Loop timing
 unsigned long time_now       = 0;
@@ -326,12 +330,7 @@ void ctl(){
   
   // Velocity computation
   float vel_raw = (enc_now - enc_old) * tick2m / time_loop_dt * 1000;
-
-  //float alpha   = (time_loop_dt / 1000)/(time_loop_dt / 1000 + filter_rc) ;
-  //float vel_fil = alpha*vel_raw + (1-alpha)*vel_raw_old;
-  //vel_raw_old = vel_raw;
-
-  float vel_fil = vel_raw;
+  vel_fil = vel_fil + alpha*(vel_raw-vel_fil);
 
   // Propulsion Controllers
   
@@ -361,32 +360,36 @@ void ctl(){
     // Low-level Velocity control
     // Commands received in [m/sec] setpoints
 
-    float vel_ref = dri_cmd;
+      float k = 9.77;
+      dri_cmd = (dri_ref - vel_fil) * k;
 
-    vel_error = vel_ref - vel_fil;
-
-    float k = 9.74; //changer
-
-    dri_cmd = k*vel_error;
-
-    //Cmd to pwm
-    dri_pwm = cmd2pwm( dri_cmd );
+      //Cmd to pwm
+      dri_pwm = cmd2pwm( dri_cmd );
   }
   ///////////////////////////////////////////////////////
   else if (ctl_mode == 3){
     // Low-level Position control
     // Commands received in [m] setpoints
-    float pos_ref, pos_error
-    pos_ref = dri_ref; 
-
-    pos_error = pos_ref - pos_now;
-
-    float k = 1; //changer
-
-    dri_cmd = k*pos_error;
     
+    float vel_ref, vel_error;
+    float kp = 10;
+    float ki = 5; 
+
+    //Kp error
+    vel_error = dri_ref - vel_fil;
+
+    //Ki error
+    vel_error_int = vel_error_int + vel_error * time_loop_dt / 1000; 
+    // Anti wind-up
+    if ( vel_error_int > vel_ei_sat ){
+      vel_error_int = vel_ei_sat;
+    }
+    //Corrected cmd
+    dri_cmd = kp * vel_error + ki*vel_error_int;
+
     //Cmd to pwm
     dri_pwm = cmd2pwm( dri_cmd );
+
   }
   ///////////////////////////////////////////////////////
   else if (ctl_mode == 4){
@@ -421,6 +424,7 @@ void ctl(){
 
 // ROS suscriber
 ros::Subscriber<geometry_msgs::Twist> cmdSubscriber("prop_cmd", &cmdCallback) ;
+
 
 ///////////////////////////////////////////////////////////////////
 // Arduino Initialization
